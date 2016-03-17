@@ -35,6 +35,8 @@ noremap x "_x
 " what you previously yanked
 noremap x "_x
 
+map <tab> =
+
 " set up the status line to not show full relative path of file and to highlight
 " the name for the active buffer
 set laststatus=2
@@ -116,6 +118,20 @@ fun! StripTrailingWhiteSpace()
   call cursor(l, c)
 endfun
 
+" Moves the current buffer to the opposite window
+function! ShiftBuffer()
+    let currWin = winnr()
+    let otherWin = 2
+    if currWin == 2
+      let otherWin = 1
+    endif
+
+    let curBuf = bufnr( "%" )
+    exe "normal \<C-^>"
+    exe otherWin . " wincmd w"
+    exe "hide buffer " . curBuf
+endfunction
+
 " :messages to debug startup
 au FileType * setlocal comments-=:// comments+=f://
 
@@ -132,32 +148,25 @@ endif
 " ctrl-k to go to next buffer
 map <C-k> <C-w>w
 
-
-" ***********************************
-" Messing around with mapleader below
-" ***********************************
-
-" Mapping all s<blah> commands to work
-let mapleader="s"
+map s z
+map S s
 
 " Jumping
-map <leader>h <C-o>
-noremap <leader>l <tab>
+map sh <C-o>
+noremap sl <tab>
 
 " search the file for the current word
-map <leader>s *
-map <leader>d *
+map sd *
 
 " display the number of occurences of the currently searched pattern
-map <leader>D :%s///gn<CR>
+map sD :%s///gn<CR>
 
 " copy to the os buffer so you can copy and paste things outside of vi
-map <leader>y "*y
-map <leader>p "*p
+map sy "*y
+map sp "*p
 
-let mapleader="S"
-map <leader>H g;
-map <leader>L g,
+map sH g;
+map sL g,
 
 " restore mapleader
 let mapleader=","
