@@ -120,17 +120,44 @@ endfun
 
 " Moves the current buffer to the opposite window
 function! ShiftBuffer()
-    let currWin = winnr()
-    let otherWin = 2
-    if currWin == 2
-      let otherWin = 1
-    endif
+  let currWin = winnr()
+  let otherWin = 2
+  if currWin == 2
+    let otherWin = 1
+  endif
 
-    let curBuf = bufnr( "%" )
-    exe "normal \<C-^>"
-    exe otherWin . " wincmd w"
-    exe "hide buffer " . curBuf
+  let curBuf = bufnr( "%" )
+  exe "normal \<C-^>"
+  exe otherWin . " wincmd w"
+  exe "hide buffer " . curBuf
 endfunction
+
+" Expands a window to be full screen if not expanded. Otherwise
+" returns windows to previous sizes.
+function! ExpandWindow()
+  let large_size=1998123
+  let all_windows=range(1,winnr('$'))
+  let curr_win=winnr()
+
+  if exists("w:WindowIsExpanded") && w:WindowIsExpanded
+    for i in all_windows
+      exe i . " wincmd w"
+      exe "vertical resize " . w:WidthToRestore
+      let w:WindowIsExpanded=0
+    endfor
+    exe curr_win . " wincmd w"
+  else
+    for i in all_windows
+      exe i . " wincmd w"
+      let w:WidthToRestore=winwidth(0)
+      let w:WindowIsExpanded=0
+    endfor
+    exe curr_win . " wincmd w"
+    exe "vertical resize " . 4000
+    let w:WindowIsExpanded=1
+  endif
+endfunction
+noremap <C-h> :call ExpandWindow()<CR>
 
 " :messages to debug startup
 au FileType * setlocal comments-=:// comments+=f://
