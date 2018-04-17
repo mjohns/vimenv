@@ -197,7 +197,6 @@ map S s
 map sh <C-o>
 noremap sl <tab>
 
-" search the file for the current word
 
 " display the number of occurences of the currently searched pattern
 map sD :%s///gn<CR>
