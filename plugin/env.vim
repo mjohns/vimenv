@@ -35,6 +35,8 @@ noremap x "_x
 " what you previously yanked
 noremap x "_x
 
+map <tab> =
+
 " set up the status line to not show full relative path of file and to highlight
 " the name for the active buffer
 set laststatus=2
@@ -56,16 +58,30 @@ map <leader>b :FufBuffer<CR>
 " Set terminal colors to 256
 let &t_Co=256
 
-colorscheme inkpot
-" Make active buffer status line more noticable color
-hi StatusLine ctermfg=14
+set background=light
+colorscheme solarized
+
+highlight ExtraWhitespace ctermbg=red
+match ExtraWhitespace /\s\+$/
+autocmd BufWinEnter * match ExtraWhitespace /\s\+$/
+autocmd InsertEnter * match ExtraWhitespace /\s\+\%#\@<!$/
+autocmd InsertLeave * match ExtraWhitespace /\s\+$/
+autocmd BufWinLeave * call clearmatches()
+
+" Make vim take up whole terminal
+set t_ut=
+
+"colorscheme inkpot
+"hi StatusLine ctermfg=14
 
 " Highlight column 80 for cpp files
-hi ColorColumn ctermbg=236
+hi ColorColumn ctermbg=7
 autocmd BufNewFile,BufRead * call SetColorColumnValue()
 fun! SetColorColumnValue()
   if (&filetype == 'cpp')
     set colorcolumn=80
+  elif (&filetype == 'java')
+    set colorcolumn=100
   else
     set colorcolumn=5000
   endif
@@ -116,6 +132,47 @@ fun! StripTrailingWhiteSpace()
   call cursor(l, c)
 endfun
 
+" Moves the current buffer to the opposite window
+function! ShiftBuffer()
+  let currWin = winnr()
+  let otherWin = 2
+  if currWin == 2
+    let otherWin = 1
+  endif
+
+  let curBuf = bufnr( "%" )
+  exe "normal \<C-^>"
+  exe otherWin . " wincmd w"
+  exe "hide buffer " . curBuf
+endfunction
+
+" Expands a window to be full screen if not expanded. Otherwise
+" returns windows to previous sizes.
+function! ExpandWindow()
+  let large_size=1998123
+  let all_windows=range(1,winnr('$'))
+  let curr_win=winnr()
+
+  if exists("w:WindowIsExpanded") && w:WindowIsExpanded
+    for i in all_windows
+      exe i . " wincmd w"
+      exe "vertical resize " . w:WidthToRestore
+      let w:WindowIsExpanded=0
+    endfor
+    exe curr_win . " wincmd w"
+  else
+    for i in all_windows
+      exe i . " wincmd w"
+      let w:WidthToRestore=winwidth(0)
+      let w:WindowIsExpanded=0
+    endfor
+    exe curr_win . " wincmd w"
+    exe "vertical resize " . 4000
+    let w:WindowIsExpanded=1
+  endif
+endfunction
+noremap <C-h> :call ExpandWindow()<CR>
+
 " :messages to debug startup
 au FileType * setlocal comments-=:// comments+=f://
 
@@ -131,33 +188,51 @@ endif
 
 " ctrl-k to go to next buffer
 map <C-k> <C-w>w
+map <A-k> <C-w>w
 
-
-" ***********************************
-" Messing around with mapleader below
-" ***********************************
-
-" Mapping all s<blah> commands to work
-let mapleader="s"
+map s z
+map S s
 
 " Jumping
-map <leader>h <C-o>
-noremap <leader>l <tab>
+map sh <C-o>
+noremap sl <tab>
 
 " search the file for the current word
-map <leader>s *
-map <leader>d *
 
 " display the number of occurences of the currently searched pattern
-map <leader>D :%s///gn<CR>
+map sD :%s///gn<CR>
 
 " copy to the os buffer so you can copy and paste things outside of vi
-map <leader>y "*y
-map <leader>p "*p
+map sy "*y
+map sp "*p
 
-let mapleader="S"
-map <leader>H g;
-map <leader>L g,
+map sH g;
+map sL g,
+
+" switch back to the previously loaded file
+map zb <C-^>
 
 " restore mapleader
 let mapleader=","
+
+augroup Binary
+  au!
+  au BufReadPre  *.glb,*.bin,*.BIN,*.exe,*.o,*.obj,*.OBJ,*.rom,*.ROM let &bin=1
+  au BufReadPost *.glb,*.bin,*.BIN,*.exe,*.o,*.obj,*.OBJ,*.rom,*.ROM if &bin | %!xxd -g1
+  au BufReadPost *.glb,*.bin,*.BIN,*.exe,*.o,*.obj,*.OBJ,*.rom,*.ROM set ft=xxd | endif
+  au BufWritePre *.glb,*.bin,*.BIN,*.exe,*.o,*.obj,*.OBJ,*.rom,*.ROM if &bin | %!xxd -r
+  au BufWritePre *.glb,*.bin,*.BIN,*.exe,*.o,*.obj,*.OBJ,*.rom,*.ROM endif
+  au BufWritePost *.glb,*.bin,*.BIN,*.exe,*.o,*.obj,*.OBJ,*.rom,*.ROM if &bin | %!xxd -g1
+  au BufWritePost *.glb,*.bin,*.BIN,*.exe,*.o,*.obj,*.OBJ,*.rom,*.ROM set nomod | endif
+augroup END
+
+function! RunCmdSimple(name)
+  edit temporary_buffer
+  setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile nowrap
+  setlocal modifiable
+  map <buffer> <Enter> gF
+  map <buffer> q <C-^>
+  map <buffer> :q q
+  exe "silent r!" . a:name
+  etlocal nomodifiable
+endfunction
