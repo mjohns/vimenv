@@ -76,16 +76,11 @@ set t_ut=
 
 " Highlight column 80 for cpp files
 hi ColorColumn ctermbg=7
-autocmd BufNewFile,BufRead * call SetColorColumnValue()
-fun! SetColorColumnValue()
-  if (&filetype == 'cpp')
-    set colorcolumn=80
-  elif (&filetype == 'java')
-    set colorcolumn=100
-  else
-    set colorcolumn=5000
-  endif
-endfun
+autocmd BufNewFile,BufRead *.cc set colorcolumn=80
+autocmd BufNewFile,BufRead *.h set colorcolumn=80
+autocmd BufNewFile,BufRead *.cpp set colorcolumn=80
+autocmd BufNewFile,BufRead *.hpp set colorcolumn=80
+autocmd BufNewFile,BufRead *.java set colorcolumn=100
 
 " hide created files in Explore
 let g:netrw_list_hide= '.*\.swp$,.*\.swo$'
