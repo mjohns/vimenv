@@ -37,6 +37,11 @@ noremap x "_x
 
 map <tab> =
 
+map v V
+map y Y
+map <PageDown> <C-d>
+map <PageUp> <C-u>
+
 " set up the status line to not show full relative path of file and to highlight
 " the name for the active buffer
 set laststatus=2
