@@ -28,7 +28,11 @@ vmap J j
 vmap K k
 
 " Make it easier to enter command mode
-noremap <unique> ; :
+noremap ; :
+
+" Make saving easier
+map <leader>q :wq<CR>
+map <leader>w :w<CR>
 
 " Make it so x does not put the deleted char in the default buffer overwriting
 " what you previously yanked
