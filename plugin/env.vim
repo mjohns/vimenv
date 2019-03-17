@@ -27,6 +27,9 @@ map gj ]}
 vmap J j
 vmap K k
 
+" Make it easier to enter command mode
+noremap <unique> ; :
+
 " Make it so x does not put the deleted char in the default buffer overwriting
 " what you previously yanked
 noremap x "_x
