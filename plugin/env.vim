@@ -211,8 +211,8 @@ noremap sl <tab>
 map sD :%s///gn<CR>
 
 " copy to the os buffer so you can copy and paste things outside of vi
-map sy "*y
-map sp "*p
+" If clipboard enabled "+y or "*y, * = mouse selection on linux
+vmap sy :w !xsel -b<CR>
 
 map sH g;
 map sL g,
